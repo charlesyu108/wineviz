@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+  </head>
+  <body>
+    <h1> INFO 4310 HW 3 </h3>
+  </body>
+</html>
+
+<style>
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+</style>
+
+<svg id = "varieties_svg" width = "960" height = "600"> </svg>
+
+<script>
+
+  // Loading Data In
+  d3.queue()
+    .defer(d3.csv, "data/filtered_wines.csv", function(d){
+      d.points = Number(d.points);
+      d.price = Number(d.price);
+      return d;
+    })
+    .defer(d3.json, "data/wine_variety_similarities.json")
+    .await(visualize);
+
+  // Callback once data has been loaded in
+  function visualize(error, wines, wine_sims){
+    if (error) { console.log(error); }
+
+    // DATA VARIABLES
+    var sim_matrix = wine_sims["sim_matrix"];
+    var variety_data =  wine_sims["varieties"];
+    var variety_order = variety_data.map(function(d) { return d.name; });
+    var variety_to_index = wine_sims["variety_to_index"];
+
+    console.log("Data loaded!")
+
+    // Make Variety Viz
+    makeVarietyViz(variety_data);
+
+    // Make Plot Viz
+    makeWineViz(wines);
+  }
+  // Creating the Variety visualization
+  function makeVarietyViz(variety_data){
+
+    // Building Graph Data Structures
+    var variety_nodes = variety_data.map(function (d){ return {"name": d.name, "group": d.cluster}; })
+    var edges = []
+    variety_data.forEach(function (d){
+      d.related.forEach( function (r){
+        if (d.name > r.name) { edges.push({"source": d.name, "target": r.name, "value": r.score})}
+      })
+    });
+
+    // Begin Building
+
+    var svg = d3.select("#varieties_svg"),
+        width = svg.attr("width"),
+        height = svg.attr("height")
+
+    console.log(width, height);
+
+
+  }
+
+  function makeWineViz(wines){
+    console.log(wines[0]);
+    // TODO: Fill me in!
+  }
+
+</script>
