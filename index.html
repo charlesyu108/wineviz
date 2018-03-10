@@ -49,34 +49,38 @@
     console.log("Data loaded!")
 
     // Make Variety Viz
-    makeVarietyViz(variety_data);
+    makeVarietyViz(variety_data, variety_to_index);
 
     // Make Plot Viz
-    makeWineViz(wines); //, "Melon"
+
+    makeWineViz(wines, "Melon");
+
   }
   // Creating the Variety visualization
-  function makeVarietyViz(variety_data){
+  function makeVarietyViz(variety_data, variety_to_index){
 
     // Building Graph Data Structures
-    var nodes = variety_data.map(function (d){ return {"name": d.name, "group": d.cluster}; })
+    var wine_nodes = variety_data.map(function (d){ return {"name": d.name, "group": d.cluster}; })
     var edges = []
     variety_data.forEach(function (d){
       d.related.forEach( function (r){
-        if (d.name > r.name) { edges.push({"source": d.name, "target": r.name, "value": r.score})}
-      })
+        if (d.name > r.name) { edges.push({"source": d.name, "target": r.name, "value": r.score}); }
+      });
     });
 
+    // TODO: DEFINE COLORS
+    var default_colors = ["#DAF7A6", "#900C3F", "#FFC300"]
+    var highlightedNodeColor = "orange";
+    var inactiveNodeColor = "gray";
+    var color = function (d) {
+       if (d > 1){ return default_colors[2]; }
+       else { return default_colors[d]; }
+     }
     // Begin Building
     var svg = d3.select("#varieties_svg"),
         width = svg.attr("width"),
         height = svg.attr("height")
         radius = 10;
-
-    var wineLabel = svg.append("text")
-    .attr("x", 50)
-    .attr("y", 50);
-
-    var color = d3.scaleOrdinal(d3.schemeCategory20);
 
     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function (d){ return d.name; }))
@@ -89,27 +93,35 @@
         .selectAll("line")
         .data(edges)
         .enter().append("line")
-            .attr("stroke-width", function(d){ return (d.value * 3)});
+            .attr("stroke-width", 2);
 
-    var node = svg.append("g")
-        .attr("class", "nodes")
-        .selectAll("circle")
-        .data(nodes)
-        .enter().append("circle")
-            .attr("r", radius)
-            .attr("fill", function(d){return color(d.group); }) //Double check on this
-            .call(d3.drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended))
-                  .on("mouseover", mouseover)
-                  .on("mouseout", mouseout);
+    var node = svg.selectAll(".nodes")
+      .data(wine_nodes)
+      .enter()
+      .append("g")
+      .attr("class", "nodes")
+      .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended))
+            .on("mouseover", mouseover)
+            .on("mouseout", mouseout);
+
+      node.append("circle")
+          .attr("r", radius)
+          .attr("default_color", function(d) {return color(d.group); })
+          .style("fill", function (d) {return d3.select(this).attr("default_color")});
 
       node.append("title")
         .text(function (d){ return d.name});
 
+      node.append("text")
+        .attr("dy", -3)
+        .attr("visibility", "hidden")
+        .text(function (d){ return d.name});
+
       simulation
-        .nodes(nodes)
+        .nodes(wine_nodes)
         .on("tick", ticked);
 
       simulation.force("link")
@@ -122,13 +134,14 @@
           .attr("x2", function(d) {return d.target.x; })
           .attr("y2", function(d) {return d.target.y; });
 
-          node
-          .attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
-          .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+        node
+         .attr("transform", function (d) {
+           var dx = Math.max(radius, Math.min(width - radius, d.x));
+           var dy = Math.max(radius, Math.min(height - radius, d.y));
+           return "translate(" + dx + ", " + dy + ")";});
       }
 
-      //?? What does all of this do???
-      function dragstarted(d) {
+    function dragstarted(d) {
       if (!d3.event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
@@ -147,28 +160,49 @@
 
     function mouseover(d) {
 
-      wineLabel.transition()
-        .duration(75)
-        .text(d.name);
+      d3.select(this).select("circle")
+        .transition()
+          .duration(75)
+          .attr("r", radius * 1.5);
 
-      d3.select(this).transition()
-        .duration(75)
-        .attr("r", radius * 1.5);
+      d3.select(this).select("text")
+        .transition()
+          .duration(75)
+          .attr("visibility", "visible");
 
-
-
+      var idx = variety_to_index[d.name];
+      var rel_wines = variety_data[idx].related.map(function (d){ return d.name;});
+      node.selectAll("circle")
+        .style("fill", function(w){
+          if (d.name == w.name) { return highlightedNodeColor }
+          else if (rel_wines.indexOf(w.name) == -1) { return inactiveNodeColor }
+          else { return highlightedNodeColor }
+         });
     }
 
     function mouseout(d) {
-      d3.select(this).transition()
-        .duration(75)
-        .attr("r", radius);
+
+      d3.select(this).select("circle")
+        .transition()
+          .duration(75)
+          .attr("r", radius);
+
+
+      d3.select(this).select("text")
+        .transition()
+          .duration(75)
+          .attr("visibility", "hidden");
+
+
+      node.selectAll("circle")
+        .style("fill", function(w){ return d3.select(this).attr("default_color"); });
     }
 
 
   }
 
   function makeWineViz(wines, variety){
+
     // Begin Building
     var svg = d3.select("#filtered_svg"),
         width = svg.attr("width"),
