@@ -51,7 +51,7 @@
     makeVarietyViz(variety_data);
 
     // Make Plot Viz
-    makeWineViz(wines);
+    makeWineViz(wines, "Melon");
   }
   // Creating the Variety visualization
   function makeVarietyViz(variety_data){
@@ -71,10 +71,6 @@
         height = svg.attr("height")
         radius = 10;
 
-    var wineLabel = svg.append("text")
-    .attr("x", 50)
-    .attr("y", 50);
-
     var color = d3.scaleOrdinal(d3.schemeCategory20);
 
     var simulation = d3.forceSimulation()
@@ -90,21 +86,28 @@
         .enter().append("line")
             .attr("stroke-width", function(d){ return (d.value * 3)});
 
-    var node = svg.append("g")
-        .attr("class", "nodes")
-        .selectAll("circle")
-        .data(nodes)
-        .enter().append("circle")
-            .attr("r", radius)
-            .attr("fill", function(d){return color(d.group); }) //Double check on this
-            .call(d3.drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended))
-                  .on("mouseover", mouseover)
-                  .on("mouseout", mouseout);
+    var node = svg.selectAll(".nodes")
+      .data(nodes)
+      .enter()
+      .append("g")
+      .attr("class", "nodes")
+      .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended))
+            .on("mouseover", mouseover)
+            .on("mouseout", mouseout);
+
+      node.append("circle")
+          .attr("r", radius)
+          .style("fill", function(d){return color(d.group); }) //Double check on this
 
       node.append("title")
+        .text(function (d){ return d.name});
+
+      node.append("text")
+        .attr("dy", -3)
+        .attr("visibility", "hidden")
         .text(function (d){ return d.name});
 
       simulation
@@ -121,13 +124,14 @@
           .attr("x2", function(d) {return d.target.x; })
           .attr("y2", function(d) {return d.target.y; });
 
-          node
-          .attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
-          .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+        node
+         .attr("transform", function (d) {
+           var dx = Math.max(radius, Math.min(width - radius, d.x));
+           var dy = Math.max(radius, Math.min(height - radius, d.y));
+           return "translate(" + dx + ", " + dy + ")";});
       }
 
-      //?? What does all of this do???
-      function dragstarted(d) {
+    function dragstarted(d) {
       if (!d3.event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
@@ -146,29 +150,32 @@
 
     function mouseover(d) {
 
-      wineLabel.transition()
-        .duration(75)
-        .text(d.name);
-
       d3.select(this).transition()
         .duration(75)
         .attr("r", radius * 1.5);
 
-
+      d3.select(this).select("text").transition()
+        .duration(75)
+        .attr("visibility", "visible");
     }
 
     function mouseout(d) {
       d3.select(this).transition()
         .duration(75)
         .attr("r", radius);
-    }
 
+      d3.select(this).select("text").transition()
+        .duration(75)
+        .attr("visibility", "hidden");
+    }
 
   }
 
-  function makeWineViz(wines){
+  function makeWineViz(wines, variety){
     console.log(wines[0]);
-    // TODO: Fill me in!
+    var filtered = wines.filter(function (d){ return d.variety == variety});
+    // var filtered = filtered.filter(function (d){ return d.price > 30});
+    console.log(filtered);
   }
 
 </script>
