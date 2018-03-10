@@ -48,30 +48,36 @@
     console.log("Data loaded!")
 
     // Make Variety Viz
-    makeVarietyViz(variety_data);
+    makeVarietyViz(variety_data, variety_to_index);
 
     // Make Plot Viz
     makeWineViz(wines, "Melon");
   }
   // Creating the Variety visualization
-  function makeVarietyViz(variety_data){
+  function makeVarietyViz(variety_data, variety_to_index){
 
     // Building Graph Data Structures
-    var nodes = variety_data.map(function (d){ return {"name": d.name, "group": d.cluster}; })
+    var wine_nodes = variety_data.map(function (d){ return {"name": d.name, "group": d.cluster}; })
     var edges = []
     variety_data.forEach(function (d){
       d.related.forEach( function (r){
-        if (d.name > r.name) { edges.push({"source": d.name, "target": r.name, "value": r.score})}
-      })
+        if (d.name > r.name) { edges.push({"source": d.name, "target": r.name, "value": r.score}); }
+      });
     });
 
+    // TODO: DEFINE COLORS
+    var default_colors = ["#DAF7A6", "#900C3F", "#FFC300"]
+    var highlightedNodeColor = "orange";
+    var inactiveNodeColor = "gray";
+    var color = function (d) {
+       if (d > 1){ return default_colors[2]; }
+       else { return default_colors[d]; }
+     }
     // Begin Building
     var svg = d3.select("#varieties_svg"),
         width = svg.attr("width"),
         height = svg.attr("height")
         radius = 10;
-
-    var color = d3.scaleOrdinal(d3.schemeCategory20);
 
     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function (d){ return d.name; }))
@@ -84,10 +90,10 @@
         .selectAll("line")
         .data(edges)
         .enter().append("line")
-            .attr("stroke-width", function(d){ return (d.value * 3)});
+            .attr("stroke-width", 2);
 
     var node = svg.selectAll(".nodes")
-      .data(nodes)
+      .data(wine_nodes)
       .enter()
       .append("g")
       .attr("class", "nodes")
@@ -100,7 +106,8 @@
 
       node.append("circle")
           .attr("r", radius)
-          .style("fill", function(d){return color(d.group); }) //Double check on this
+          .attr("default_color", function(d) {return color(d.group); })
+          .style("fill", function (d) {return d3.select(this).attr("default_color")});
 
       node.append("title")
         .text(function (d){ return d.name});
@@ -111,7 +118,7 @@
         .text(function (d){ return d.name});
 
       simulation
-        .nodes(nodes)
+        .nodes(wine_nodes)
         .on("tick", ticked);
 
       simulation.force("link")
@@ -150,24 +157,42 @@
 
     function mouseover(d) {
 
-      d3.select(this).transition()
-        .duration(75)
-        .attr("r", radius * 1.5);
+      d3.select(this).select("circle")
+        .transition()
+          .duration(75)
+          .attr("r", radius * 1.5);
 
-      d3.select(this).select("text").transition()
-        .duration(75)
-        .attr("visibility", "visible");
+      d3.select(this).select("text")
+        .transition()
+          .duration(75)
+          .attr("visibility", "visible");
+
+      var idx = variety_to_index[d.name];
+      var rel_wines = variety_data[idx].related.map(function (d){ return d.name;});
+      node.selectAll("circle")
+        .style("fill", function(w){
+          if (d.name == w.name) { return highlightedNodeColor }
+          else if (rel_wines.indexOf(w.name) == -1) { return inactiveNodeColor }
+          else { return highlightedNodeColor }
+         });
     }
 
     function mouseout(d) {
-      d3.select(this).transition()
-        .duration(75)
-        .attr("r", radius);
 
-      d3.select(this).select("text").transition()
-        .duration(75)
-        .attr("visibility", "hidden");
+      d3.select(this).select("circle")
+        .transition()
+          .duration(75)
+          .attr("r", radius);
+
+      d3.select(this).select("text")
+        .transition()
+          .duration(75)
+          .attr("visibility", "hidden");
+
+      node.selectAll("circle")
+        .style("fill", function(w){ return d3.select(this).attr("default_color"); });
     }
+
 
   }
 
