@@ -1,0 +1,32 @@
+.links line {
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+/* .description {
+  position: absolute;
+  display: inline-block;
+  width: 300px;
+  height: 600px;
+  border: 1px solid black;
+} */
+
+.description-inner {
+  text-align: left;
+  padding: 5px;
+  font-size: 0.9em;
+}
+
+.varieties-svg{
+  display: block;
+  margin: 0 auto;
+}
+
+
+body{
+  background-color: #FAF6F6;
+}

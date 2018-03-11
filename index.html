@@ -1,63 +1,61 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+     <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css"  media="screen,projection"/>
+     <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="materialize/js/materialize.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <style>
-
-    .links line {
-      stroke-opacity: 0.6;
-    }
-
-    .nodes circle {
-      stroke: #fff;
-      stroke-width: 1.5px;
-    }
-
-    .description {
-      position: absolute;
-      display: inline-block;
-      width: 300px;
-      height: 600px;
-      border: 1px solid black;
-    }
-
-    .description-inner {
-      text-align: center;
-      padding: 10px;
-    }
-
-    .varieties-svg{
-      border: 1px solid black;
-      display: inline-block;
-    }
-
-    .search-bar{
-      width: 400px;
-    }
-
-    body{
-      background-color: #FAF6F6;
-    }
-
-    </style>
   </head>
 
   <body>
-    <h1> Wines </h3>
+    <div class = "container">
+    <h3> Wine Varieties </h3>
+      <div class = "row">
+        <div class = ".input-field col s8">
+          <label for="keywords">Filter by features (separate queries with commas)</label>
+          <input type="text" id="keywords" placeholder="Try 'cherry, fruity, sweet'&hellip;" />
+        </div>
+      <div class = "col s2">
+        <button class="btn waves-effect waves-light" type="submit" id="filterButton">Filter
+          <i class="material-icons right">search</i>
+        </button>
+      </div>
+      <div class = "col s2">
+        <button class="btn waves-effect waves-light" type="submit" id="resetButton">Reset
+          <i class="material-icons right">replay</i>
+        </button>
+      </div>
+    </div>
+
+    <!-- <svg id = "varieties_svg" width = "800" height = "600"  class = "varieties-svg"> </svg> -->
+    <!-- <div id = "varieties_description" class = "description"> </div> -->
+    <div class="row">
+       <div class = "col s8">
+         <div class = "card" style="padding: 10px">
+           <svg id = "varieties_svg" width = "600" height = "600" class ="varieties-svg"> </svg>
+         </div>
+       </div>
+       <div class="col s4">
+         <div class="card">
+           <span class="card-title">Instructions</span>
+           <div id ="varieties_description" class="card-content description-inner">
+             Welcome to Wine Visualization! ... Instructions on how to use...
+           </div>
+         </div>
+       </div>
+     </div>
+
+    </div>
   </body>
 </html>
 
-<svg id = "varieties_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
-<div id = "varieties_description" class = "description"> </div>
-<div>
-  Filter by features (separate queries with commas):
-  <input type="text" id="keywords" placeholder="Try 'cherry, fruity, sweet'&hellip;" class = "search-bar"/>
-  <input id="filterButton" name="Submit"  type="submit" value="Filter"/>
-  <input id="resetButton" name="Submit"  type="submit" value="Reset"/>
-</div>
-
 <script>
-
   // Loading Data In
   d3.queue()
     .defer(d3.csv, "data/filtered_wines.csv", function(d){
@@ -116,10 +114,7 @@
         height = svg.attr("height")
         radius = 15;
 
-    // Description box -- Making an inner div to avoid weird sizing
-    var description = d3.select("#varieties_description")
-    .append("div")
-    .attr("class", "description-inner");
+    var description = d3.select("#varieties_description");
 
     var filterButton = d3.select("#filterButton")
       .on("click", filterGraph);
@@ -235,6 +230,8 @@
     }
 
     function resetGraph(){
+      document.getElementById("keywords").value = "";
+
       d3.selectAll(".links line")
         .transition()
         .duration(750)
@@ -303,9 +300,11 @@
       var features = variety_data[idx].features.reduce(reducer);
       var rel_wines_string = rel_wines.length ? rel_wines.reduce(reducer) : "None";
 
+      d3.select(".card-title")
+        .html(d.name);
+
       description.html(
-       `<b>${d.name}</b> <br><br>\
-        <b>Related Wines: </b>${rel_wines_string}<br><br>\
+       `<b>Related Wines: </b>${rel_wines_string}<br><br>\
         <b> Features:</b> ${features}`);
 
     }
@@ -332,8 +331,11 @@
       .duration(750)
       .attr("stroke", default_link_color);
 
+      d3.select(".card-title")
+        .html("Instructions");
+
       description
-        .html("");
+      .html("Welcome to Wine Visualization! ... Instructions on how to use...");
     }
 
 
