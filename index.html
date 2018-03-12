@@ -2,27 +2,59 @@
 <html>
   <head>
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style>
+
+    .links line {
+      stroke-opacity: 0.6;
+    }
+
+    .nodes circle {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+
+    .description {
+      position: absolute;
+      display: inline-block;
+      width: 300px;
+      height: 600px;
+      border: 1px solid black;
+    }
+
+    .description-inner {
+      text-align: center;
+      padding: 10px;
+    }
+
+    .varieties-svg{
+      border: 1px solid black;
+      display: inline-block;
+    }
+
+    .search-bar{
+      width: 400px;
+    }
+
+    body{
+      background-color: #FAF6F6;
+    }
+
+    </style>
   </head>
+
   <body>
-    <h1> INFO 4310 HW 3 </h3>
+    <h1> Wines </h3>
   </body>
 </html>
 
-<style>
-
-.links line {
-  stroke: #999;
-  stroke-opacity: 0.6;
-}
-
-.nodes circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
-</style>
-
-<svg id = "varieties_svg" width = "960" height = "600" style = "border: 1px solid black"> </svg>
-<svg id = "filtered_svg" width = "960" height = "600" style = "border: 1px solid black"> </svg> <!-- Jon's SVG -->
+<svg id = "varieties_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
+<div id = "varieties_description" class = "description"> </div>
+<div>
+  Filter by features (separate queries with commas):
+  <input type="text" id="keywords" placeholder="Try 'cherry, fruity, sweet'&hellip;" class = "search-bar"/>
+  <input id="filterButton" name="Submit"  type="submit" value="Filter"/>
+  <input id="resetButton" name="Submit"  type="submit" value="Reset"/>
+</div>
 
 <script>
 
@@ -69,32 +101,50 @@
     });
 
     // TODO: DEFINE COLORS
-    var default_colors = ["#DAF7A6", "#900C3F", "#FFC300"]
+    var default_colors = ["#DAF7A6", "#900C3F", "#FFC300"];
+    var default_link_color = "gray";
     var highlightedNodeColor = "orange";
     var inactiveNodeColor = "gray";
     var color = function (d) {
        if (d > 1){ return default_colors[2]; }
        else { return default_colors[d]; }
      }
+
     // Begin Building
     var svg = d3.select("#varieties_svg"),
         width = svg.attr("width"),
         height = svg.attr("height")
-        radius = 10;
+        radius = 15;
 
+    // Description box -- Making an inner div to avoid weird sizing
+    var description = d3.select("#varieties_description")
+    .append("div")
+    .attr("class", "description-inner");
+
+    var filterButton = d3.select("#filterButton")
+      .on("click", filterGraph);
+
+    var filterButton = d3.select("#resetButton")
+      .on("click", resetGraph);
+
+    // Force simulation for nodes
     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function (d){ return d.name; }))
-        .force("charge", d3.forceManyBody().strength(-5)) // Repel strength
+        .force("charge", d3.forceManyBody().strength(-1)) // Repel strength
         .force("center", d3.forceCenter(width/2, height/2))
-        .force("collision", d3.forceCollide().radius(radius));
+        .force("collision", d3.forceCollide().radius(1.5 * radius));
 
+    // Creating link data bind
     var link = svg.append("g")
         .attr("class", "links")
         .selectAll("line")
         .data(edges)
         .enter().append("line")
-            .attr("stroke-width", 2);
+            .attr("stroke", default_link_color)
+            .attr("stroke-width", 3);
 
+
+    // Creating node data bind
     var node = svg.selectAll(".nodes")
       .data(wine_nodes)
       .enter()
@@ -107,26 +157,28 @@
             .on("mouseover", mouseover)
             .on("mouseout", mouseout);
 
+      // Creating circles
       node.append("circle")
           .attr("r", radius)
           .attr("default_color", function(d) {return color(d.group); })
           .style("fill", function (d) {return d3.select(this).attr("default_color")});
 
-      node.append("title")
-        .text(function (d){ return d.name});
-
+      // Labels
       node.append("text")
         .attr("dy", -3)
         .attr("visibility", "hidden")
         .text(function (d){ return d.name});
 
+      // Attaching simulation to nodes
       simulation
         .nodes(wine_nodes)
         .on("tick", ticked);
 
+      // Attaching edges to links
       simulation.force("link")
         .links(edges)
 
+      // Force updates
       function ticked() {
         link
           .attr("x1", function(d) {return d.source.x; })
@@ -141,6 +193,60 @@
            return "translate(" + dx + ", " + dy + ")";});
       }
 
+    // Filtering function
+
+    function filterGraph(){
+
+      var features = document.getElementById("keywords").value;
+
+      if (features == ""){
+        resetGraph();
+        return;
+      }
+
+      features = features.split(',').map( x => x.trim());
+
+      filtered_wine_nodes = wine_nodes;
+
+      // Filtering successively for each queried feature
+      features.forEach(feature =>
+        filtered_wine_nodes = filtered_wine_nodes.filter(function(d){
+           return variety_data[variety_to_index[d.name]].features.indexOf(feature) != -1;
+         })
+      );
+
+      filtered_wine_names = filtered_wine_nodes.map(function (d){ return d.name });
+
+      d3.selectAll(".links line")
+        .transition()
+        .duration(750)
+        .attr("display", function(w){
+          if (filtered_wine_names.indexOf(w.source.name) != -1 && filtered_wine_names.indexOf(w.target.name) != -1 ) { return "visible"}
+          else { return "none" }
+         });
+
+       node.selectAll("circle")
+         .transition()
+         .duration(750)
+         .attr("display", function(w){
+           if (filtered_wine_names.indexOf(w.name) != -1 ) { return "visible"}
+           else { return "none" }
+          });
+    }
+
+    function resetGraph(){
+      d3.selectAll(".links line")
+        .transition()
+        .duration(750)
+        .attr("display", "visible");
+
+       node.selectAll("circle")
+         .transition()
+         .duration(750)
+         .attr("display", "visible");
+    }
+
+    // Begin Mouse Event Callbacks
     function dragstarted(d) {
       if (!d3.event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
@@ -159,43 +265,75 @@
     }
 
     function mouseover(d) {
-
+      // Make circle radius of selected circle bigger
       d3.select(this).select("circle")
-        .transition()
-          .duration(75)
           .attr("r", radius * 1.5);
 
+      // Display the name
       d3.select(this).select("text")
         .transition()
-          .duration(75)
+          .duration(750)
           .attr("visibility", "visible");
 
+      // Highlighting the related nodes
       var idx = variety_to_index[d.name];
       var rel_wines = variety_data[idx].related.map(function (d){ return d.name;});
+
+      d3.selectAll(".links line")
+        .transition()
+        .duration(750)
+        .attr("stroke", function(w){
+          if (d.name == w.source.name || d.name == w.target.name) { return highlightedNodeColor }
+          else { return default_link_color }
+         });
+
+
+      // Changing color when selecting a node
       node.selectAll("circle")
+        .transition()
+        .duration(750)
         .style("fill", function(w){
           if (d.name == w.name) { return highlightedNodeColor }
           else if (rel_wines.indexOf(w.name) == -1) { return inactiveNodeColor }
           else { return highlightedNodeColor }
          });
+
+
+      var reducer = (acc, curr_val) => acc + ", " + curr_val;
+      var features = variety_data[idx].features.reduce(reducer);
+      var rel_wines_string = rel_wines.length ? rel_wines.reduce(reducer) : "None";
+
+      description.html(
+       `<b>${d.name}</b> <br><br>\
+        <b>Related Wines: </b>${rel_wines_string}<br><br>\
+        <b> Features:</b> ${features}`);
+
     }
 
     function mouseout(d) {
 
       d3.select(this).select("circle")
-        .transition()
-          .duration(75)
-          .attr("r", radius);
+        .attr("r", radius);
 
 
       d3.select(this).select("text")
         .transition()
-          .duration(75)
+          .duration(750)
           .attr("visibility", "hidden");
 
 
       node.selectAll("circle")
+        .transition()
+        .duration(750)
         .style("fill", function(w){ return d3.select(this).attr("default_color"); });
+
+    d3.selectAll(".links line")
+      .transition()
+      .duration(750)
+      .attr("stroke", default_link_color);
+
+      description
+        .html("");
     }
 
 
@@ -210,9 +348,7 @@
         padding = 40,
         radius = 10;
 
-    // var wineLabel = svg.append("text")
-    // .attr("x", 50)
-    // .attr("y", 50);
+
 
 
 
@@ -254,8 +390,6 @@
             .attr("class", "dot")
             .attr("cx", function (d) {return xScale(d.price);})
             .attr("cy", function (d) {return yScale(d.points);})
-            // .attr("cx", xScale)
-            // .attr("cy", yScale)
             .attr("r", radius)
             .attr("fill", 000000); 
             // .call(d3.drag()
@@ -275,13 +409,13 @@
     //     .attr("cx", xScale(function (d) {return d.price;}))
     //     .attr("cy", yScale(function (d) {return d.points;}))
     //     .style("fill", 000000)
-        // .style("fill", function(d) { return color(cValue(d));}) 
+        // .style("fill", function(d) { return color(cValue(d));})
 
         // .on("mouseover", function(d) {
         //     tooltip.transition()
         //          .duration(200)
         //          .style("opacity", .9);
-        //     tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d) 
+        //     tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d)
         //     + ", " + yValue(d) + ")")
         //          .style("left", (d3.event.pageX + 5) + "px")
         //          .style("top", (d3.event.pageY - 28) + "px");
