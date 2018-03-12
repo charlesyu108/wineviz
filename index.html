@@ -210,65 +210,54 @@
         padding = 40,
         radius = 10;
 
-    var wineLabel = svg.append("text")
-    .attr("x", 50)
-    .attr("y", 50);
-
-
-
-    // // setup x 
-    // var xValue = function(d) { return d.Calories;}, // data -> value
-    //   xScale = d3.scaleLinear().range([0, width]), // value -> display
-    //   xMap = function(d) { return xScale(xValue(d));}, // data -> display
-    //   xAxis = d3.svg.axis().scale(xScale).orient("bottom");
-
-    // // setup y
-    //   var yValue = function(d) { return d["Protein (g)"];}, // data -> value
-    //   yScale = d3.scaleLinear().range([height, 0]), // value -> display
-    //   yMap = function(d) { return yScale(yValue(d));}, // data -> display
-    //   yAxis = d3.svg.axis().scale(yScale).orient("left");
+    // var wineLabel = svg.append("text")
+    // .attr("x", 50)
+    // .attr("y", 50);
 
 
 
 
-
-
-
+    //Filter based on variety
     console.log(wines[0]);
     var filtered = wines.filter(function (d){ return d.variety == variety}); //its like a for loop applying the function to each object in wines
-
-
     //var filtered_price = filtered.filter(function (d){ return d.price > 30});
     //var filtered_rating = filtered.filter(function (d){ return d.variety == variety});
-    console.log(filtered);
+    console.log(filtered.sort(function(a,b) { return a.price - b.price; }));
 
+    var xExtent = d3.extent(filtered, function(d) {return d.price;});
+    var yExtent = d3.extent(filtered, function(d) {return d.points;});
 
+    console.log(xExtent);
+    console.log(yExtent);
 
 
     // Setup scales
-    var xScale = d3.scaleLinear().domain(d3.extent(filtered, function(d) {return d.price;}))
+    var xScale = d3.scaleLinear().domain(xExtent)
       .range([padding, width-padding]);
-
-    var yScale = d3.scaleLinear().domain(d3.extent(filtered, function(d) {return d.points;}))
+    var yScale = d3.scaleLinear().domain(yExtent)
       .range([height - padding, padding]);
-
 
 
     // Setup Axes
     var xAxis = d3.axisBottom(xScale);
     svg.append('g').attr('transform', 'translate(0,' + (height - padding) + ')').call(xAxis);
-     
     var yAxis = d3.axisLeft(yScale);
     svg.append('g').attr('transform', 'translate(' + padding + ', 0)').call(yAxis);
 
 
+    //Plot points
     var node = svg.append("g")
         .attr("class", "nodes")
         .selectAll("circle")
         .data(filtered)
         .enter().append("circle")
+            .attr("class", "dot")
+            .attr("cx", function (d) {return xScale(d.price);})
+            .attr("cy", function (d) {return yScale(d.points);})
+            // .attr("cx", xScale)
+            // .attr("cy", yScale)
             .attr("r", radius)
-            .attr("fill", 000000) //Double check on this
+            .attr("fill", 000000); 
             // .call(d3.drag()
             //       .on("start", dragstarted)
             //       .on("drag", dragged)
