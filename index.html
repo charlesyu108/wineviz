@@ -2,10 +2,44 @@
 <html>
   <head>
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
-     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css" type="text/css" media="all" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
     <style>
+
+    body {
+      font-family: 'Roboto', 'sans-serif';
+    }
+
+    .hero {
+      background-image: url("media/wine-border.jpg");
+      background-size: 100%;
+      background-position: 50% 27%;
+    }
+
+    h1 {
+      padding-top: 150px;
+      padding-bottom: 10px;
+      color: white;
+      letter-spacing: 1.5px;
+      font-weight: lighter;
+    }
+
+    .container-fluid {
+      padding-bottom: 50px;
+      margin-left: 100px;
+    }
+
+    .title-caption {
+      color: lightgray;
+      font-weight: lighter;
+      margin-left: 5px;
+      padding-left: 15px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      border-left: 5px solid #EE6E73
+    }
 
     .links line {
       stroke-opacity: 0.6;
@@ -48,7 +82,16 @@
   </head>
 
   <body>
-    <h1> Wines </h3>
+  <div class="hero">
+    <div class="container-fluid">
+    <h1>Wine Varieties</h1>
+    <p class="title-caption">Not sure what wines you would like best? Explore our interactive wine network below.</p>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </body>
 </html>
 
@@ -111,7 +154,7 @@
     });
 
     // TODO: DEFINE COLORS
-    var default_colors = ["#DAF7A6", "#900C3F", "#FFC300"];
+    var default_colors = ["#DAF7A6", "#900C3F", "#EE6E73"];
     var default_link_color = "gray";
     var highlightedNodeColor = "orange";
     var inactiveNodeColor = "gray";
