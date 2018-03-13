@@ -57,10 +57,11 @@
       width: 300px;
       height: 600px;
       border: 1px solid black;
+      background-color: white;
     }
 
     .description-inner {
-      text-align: center;
+      text-align: left;
       padding: 10px;
     }
 
@@ -77,6 +78,7 @@
       /*border: 1px solid rgba(0,0,0,.125);*/
       border-radius: 3px;
       display: inline-block;
+      background-color: white;
     }
 
     #search-bar-instructions {
@@ -168,6 +170,11 @@
 </div>
 </div>
 
+<svg id = "filtered_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
+<div id ="toolbar">
+</div>
+
+
 <script>
 
   // Loading Data In
@@ -217,6 +224,8 @@
     var default_link_color = "gray";
     var highlightedNodeColor = "orange";
     var inactiveNodeColor = "gray";
+
+    // Node coloring function
     var color = function (d) {
        if (d > 1){ return default_colors[2]; }
        else { return default_colors[d]; }
@@ -230,8 +239,8 @@
 
     // Description box -- Making an inner div to avoid weird sizing
     var description = d3.select("#varieties_description")
-    .append("div")
-    .attr("class", "description-inner");
+      .append("div")
+      .attr("class", "description-inner");
 
     var filterButton = d3.select("#filterButton")
       .on("click", filterGraph);
@@ -254,7 +263,6 @@
         .enter().append("line")
             .attr("stroke", default_link_color)
             .attr("stroke-width", 3);
-
 
     // Creating node data bind
     var node = svg.selectAll(".nodes")
@@ -306,7 +314,6 @@
       }
 
     // Filtering function
-
     function filterGraph(){
 
       var features = document.getElementById("keywords").value;
@@ -347,6 +354,9 @@
     }
 
     function resetGraph(){
+
+      document.getElementById("keywords").value = "";
+
       d3.selectAll(".links line")
         .transition()
         .duration(750)
@@ -503,7 +513,7 @@
             .attr("cx", function (d) {return xScale(d.price);})
             .attr("cy", function (d) {return yScale(d.points);})
             .attr("r", radius)
-            .attr("fill", 000000); 
+            .attr("fill", 000000);
             // .call(d3.drag()
             //       .on("start", dragstarted)
             //       .on("drag", dragged)
@@ -539,6 +549,80 @@
         //          .style("opacity", 0);
         // });
 
+        // <<<<<<<<<<<<<<<<<<<< NOTE: BEGIN slider work >>>>>>>>>>>>>>>>>>>>>>
+
+        var toolbar_div = d3.select("#toolbar");
+
+        var inputIdOrder = ["PriceMin", "PriceMax", "RatingMin", "RatingMax"];
+        var labelOrder = ["Price Min", "Price Max", "Rating Min", "Rating Max"];
+
+        var inputDivs = inputIdOrder.map( _ =>
+          toolbar_div.append("div")
+            .attr("class", "slider-div"));
+
+        var [priceMinDiv,priceMaxDiv,ratingMinDiv,ratingMaxDiv] = inputDivs;
+
+        var [priceMinLabel, priceMaxLabel, rateMinLabel, rateMaxLabel] =
+            inputDivs.map(( (div, idx) =>
+              div.append("p").html(labelOrder[idx])
+                 .attr("id", inputIdOrder[idx]+"Label")
+            ));
+
+        var [priceMinSlider, priceMaxSlider, rateMinSlider, rateMaxSlider] =
+            inputDivs.map( (div, idx) =>
+              div.append("input")
+                .attr("type", "range")
+                .attr("id", inputIdOrder[idx]+"Slider")
+              );
+
+        console.log(priceMaxSlider.attr("value"));
+
+        //After Sliders have been created, this populates information
+        initSliders();
+
+        function initSliders(){
+          //TODO: Fill me in!
+        }
+
+
+        // Use this function to update the label for a given slider id
+        function updateLabelFor(inputId, val) {
+          var index = inputIdOrder.indexOf(inputId);
+          d3.select("#" + inputId + "Label")
+            .html(labelOrder[index] + ": " + val);
+        }
+
+        priceMinSlider
+          .on("input", updatePriceMin);
+
+        priceMaxSlider
+          .on("input", updatePriceMax);
+
+        rateMinSlider
+          .on("input", updateRateMin);
+
+        rateMaxSlider
+          .on("input", updateRateMax);
+
+        function updatePriceMin(){
+          updateLabelFor("PriceMin", 25);
+          console.log("Hello");
+          // TODO: Fill me in!
+        }
+
+        function updatePriceMax(){
+          // TODO: Fill me in!
+        }
+
+        function updateRateMin(){
+          // TODO: Fill me in!
+        }
+
+        function updateRateMax(){
+        // TODO: Fill me in!
+        }
+
+       // <<<<<<<<<<<<<<<<<<<< NOTE: END slider work >>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 
