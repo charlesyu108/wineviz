@@ -2,6 +2,9 @@
 <html>
   <head>
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
+     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/ui-lightness/jquery-ui.css" type="text/css" media="all" />
     <style>
 
     .links line {
@@ -57,6 +60,11 @@
   <input id="filterButton" name="Submit"  type="submit" value="Filter"/>
   <input id="resetButton" name="Submit"  type="submit" value="Reset"/>
 </div>
+
+<svg id = "filtered_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
+<div id ="toolbar">
+</div>
+
 
 <script>
 
@@ -396,7 +404,7 @@
             .attr("cx", function (d) {return xScale(d.price);})
             .attr("cy", function (d) {return yScale(d.points);})
             .attr("r", radius)
-            .attr("fill", 000000); 
+            .attr("fill", 000000);
             // .call(d3.drag()
             //       .on("start", dragstarted)
             //       .on("drag", dragged)
@@ -432,6 +440,80 @@
         //          .style("opacity", 0);
         // });
 
+        // <<<<<<<<<<<<<<<<<<<< NOTE: BEGIN slider work >>>>>>>>>>>>>>>>>>>>>>
+
+        var toolbar_div = d3.select("#toolbar");
+
+        var inputIdOrder = ["PriceMin", "PriceMax", "RatingMin", "RatingMax"];
+        var labelOrder = ["Price Min", "Price Max", "Rating Min", "Rating Max"];
+
+        var inputDivs = inputIdOrder.map( _ =>
+          toolbar_div.append("div")
+            .attr("class", "slider-div"));
+
+        var [priceMinDiv,priceMaxDiv,ratingMinDiv,ratingMaxDiv] = inputDivs;
+
+        var [priceMinLabel, priceMaxLabel, rateMinLabel, rateMaxLabel] =
+            inputDivs.map(( (div, idx) =>
+              div.append("p").html(labelOrder[idx])
+                 .attr("id", inputIdOrder[idx]+"Label")
+            ));
+
+        var [priceMinSlider, priceMaxSlider, rateMinSlider, rateMaxSlider] =
+            inputDivs.map( (div, idx) =>
+              div.append("input")
+                .attr("type", "range")
+                .attr("id", inputIdOrder[idx]+"Slider")
+              );
+
+        console.log(priceMaxSlider.attr("value"));
+
+        //After Sliders have been created, this populates information
+        initSliders();
+
+        function initSliders(){
+          //TODO: Fill me in!
+        }
+
+
+        // Use this function to update the label for a given slider id
+        function updateLabelFor(inputId, val) {
+          var index = inputIdOrder.indexOf(inputId);
+          d3.select("#" + inputId + "Label")
+            .html(labelOrder[index] + ": " + val);
+        }
+
+        priceMinSlider
+          .on("input", updatePriceMin);
+
+        priceMaxSlider
+          .on("input", updatePriceMax);
+
+        rateMinSlider
+          .on("input", updateRateMin);
+
+        rateMaxSlider
+          .on("input", updateRateMax);
+
+        function updatePriceMin(){
+          updateLabelFor("PriceMin", 25);
+          console.log("Hello");
+          // TODO: Fill me in!
+        }
+
+        function updatePriceMax(){
+          // TODO: Fill me in!
+        }
+
+        function updateRateMin(){
+          // TODO: Fill me in!
+        }
+
+        function updateRateMax(){
+        // TODO: Fill me in!
+        }
+
+       // <<<<<<<<<<<<<<<<<<<< NOTE: END slider work >>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 
