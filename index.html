@@ -41,8 +41,8 @@
     <input type="text" id="minprice" class = "price-input"/>
     <input type="text" id="maxprice" class = "price-input"/>
     <input type="text" id="minpoints" placeholder="Enter a value > 80" class = "price-input"/>
-    <p id="error-text" visibility="hidden"> 
-  </div> 
+    <p id="error-text" visibility="hidden">
+  </div>
 
   <div class="col">
     <button type="button" id="unselectButton" name="Submit">Unselect</button>
@@ -412,7 +412,7 @@
       selected = null;
     }
 
-      function getRandomBottle(variety, minprice, maxprice, minpoints){
+    function getRandomBottle(variety, minprice, maxprice, minpoints){
       //console.log(wines[0]);
       var filtered = wines.filter(function (d){
         return (d.variety == variety)
@@ -420,12 +420,14 @@
         && (d.price <= maxprice)
         && (d.points >= minpoints)});
 
+      if (filtered.length == 0) return null;
+
       var randomIndex = Math.floor(Math.random() * Math.floor(filtered.length));
       var randomBottle = filtered[randomIndex];
 
-      //TODO - display that into the div
-
       console.log(randomBottle);
+
+      return randomBottle;
     }
 
 
@@ -433,23 +435,31 @@
       var minprice = document.getElementById("minprice").value;
       var maxprice = document.getElementById("maxprice").value;
       var minpoints = document.getElementById("minpoints").value;
-      getRandomBottle(selected.name, minprice, maxprice, minpoints);
-
-    function pickButtonClicked(d){
-      //Get necessary values here
 
       // Value Validation
-      if !(Number(minprice) >= 0 && Number(maxprice) >=0 && Number(minrate) >= 0 \
-        && Number(maxrate) <=100) {
-          // Make the error string visible here.
+      if (Number(minprice) >= 0 && Number(maxprice) >=0 && Number(maxprice) >= 0
+        && Number(maxprice) >= Number(minprice) && Number(minpoints) >= 80 && Number(minpoints) <=100 ) {
           d3.select("#error-text")
-          .attr("visibility", "visible")
+          .attr("visibility", "hidden");
         }
       else{
-          d3.select("#error-text")
-          .attr("visibility", "hidden")
+        // Make the error string visible here.s
+        d3.select("#error-text")
+        .html("Whoops! Invalid input.")
+        .attr("visibility", "visible");
+        return;
       }
 
+      var bottle = getRandomBottle(selected.name, minprice, maxprice, minpoints);
+      if (bottle == null){
+        d3.select("#error-text")
+        .html("No bottles found for search range.")
+        .attr("visibility", "visible");
+      }
+
+      d3.select("#bottle-description").html("test")
+
+      //Set display to show bottle info
     }
 
     function resetGraphAndFilter(d){
@@ -470,6 +480,8 @@
           .attr("stroke", default_link_color);
 
       description.html(default_display_text);
+      d3.select("#error-text")
+      .attr("visibility", "hidden");
     }
 
   }
