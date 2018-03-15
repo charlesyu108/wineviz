@@ -44,9 +44,15 @@
 </div>
 </div>
 
+<div class="varietypicked">
+
+</div> 
+
 <svg id = "filtered_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
 <div id ="toolbar">
 </div>
+
+
 
 
 <script>
@@ -141,7 +147,7 @@
       .on("click", resetGraphAndFilter);
 
     var pickButton = d3.select("#pickButton")
-      .on("click", pickedWine);
+      .on("click", pickButtonClicked);
 
     var unselectButton = d3.select("#unselectButton")
       .on("click", unselectNode);
@@ -400,7 +406,7 @@
       selected = null;
     }
 
-      function makeWineViz(variety, minprice, maxprice, minpoints){
+      function getRandomBottle(variety, minprice, maxprice, minpoints){
       //console.log(wines[0]);
       var filtered = wines.filter(function (d){ 
         return (d.variety == variety) 
@@ -412,6 +418,10 @@
       var randomBottle = filtered[randomIndex];
 
       console.log(randomBottle);
+    }
+
+    function pickButtonClicked(){
+
     }
 
     function resetGraphAndFilter(d){
