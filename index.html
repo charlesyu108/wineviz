@@ -46,7 +46,7 @@
 
 <div class="varietypicked">
 
-</div> 
+</div>
 
 <svg id = "filtered_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
 <div id ="toolbar">
@@ -408,19 +408,32 @@
 
       function getRandomBottle(variety, minprice, maxprice, minpoints){
       //console.log(wines[0]);
-      var filtered = wines.filter(function (d){ 
-        return (d.variety == variety) 
+      var filtered = wines.filter(function (d){
+        return (d.variety == variety)
         && (d.price >= minprice)
         && (d.price <= maxprice)
         && (d.points >= minpoints)});
-      
+
       var randomIndex = Math.floor(Math.random() * Math.floor(filtered.length));
       var randomBottle = filtered[randomIndex];
 
       console.log(randomBottle);
     }
 
-    function pickButtonClicked(){
+    function pickButtonClicked(d){
+      //Get necessary values here
+
+      // Value Validation
+      if !(Number(minprice) >= 0 && Number(maxprice) >=0 && Number(minrate) >= 0 \
+        && Number(maxrate) <=100) {
+          // Make the error string visible here.
+          d3.select("#error-text")
+          .attr("visibility", "visible")
+        }
+      else{
+          d3.select("#error-text")
+          .attr("visibility", "hidden")
+      }
 
     }
 
