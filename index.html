@@ -165,6 +165,8 @@
     <svg id = "varieties_svg" width = "850" height = "650"  class = "varieties-svg"> </svg>
   </div>
   <div class="col">
+    <button type="button" id="unselectButton" name="Submit">Unselect</button>
+    <button type="button" id="pickButton" name="Submit">Pick a bottle</button>
     <div id = "varieties_description" class = "card"> </div>
   </div>
 </div>
@@ -224,12 +226,27 @@
     var default_link_color = "gray";
     var highlightedNodeColor = "orange";
     var inactiveNodeColor = "gray";
+    var link_opacity = 0.6;
 
     // Node coloring function
     var color = function (d) {
        if (d > 1){ return default_colors[2]; }
        else { return default_colors[d]; }
      }
+
+     // Animation time
+     var FILTER_ANIMATE_TIME = 1000;
+
+     var default_display_text =
+     `How do wine tasters describe different varietals?
+      <b><br><br>Hover over a varietal node to see!</b><br><br>
+      Each node in this graph represents a different varietal of wine, and
+      nodes are connected to each other if they share a strong similarity to one
+      another. We determine similarity in terms of the feature words used to
+      describe any two wines.<br><br>
+
+      <b>Click on a node to explore bottles of wine for your chosen varietal. </b>
+      `
 
     // Begin Building
     var svg = d3.select("#varieties_svg"),
@@ -242,11 +259,19 @@
       .append("div")
       .attr("class", "description-inner");
 
+    description.html(default_display_text);
+
+    // Used for determining the selected (by click) node
+    var selected = null;
+
     var filterButton = d3.select("#filterButton")
       .on("click", filterGraph);
 
-    var filterButton = d3.select("#resetButton")
-      .on("click", resetGraph);
+    var resetButton = d3.select("#resetButton")
+      .on("click", resetGraphAndFilter);
+
+    var unselectButton = d3.select("#unselectButton")
+      .on("click", unselectNode);
 
     // Force simulation for nodes
     var simulation = d3.forceSimulation()
@@ -275,11 +300,13 @@
             .on("drag", dragged)
             .on("end", dragended))
             .on("mouseover", mouseover)
-            .on("mouseout", mouseout);
+            .on("mouseout", mouseout)
+            .on("click", clicked);
 
       // Creating circles
       node.append("circle")
           .attr("r", radius)
+          .attr("id", function (d){ return d.name + "Node" })
           .attr("default_color", function(d) {return color(d.group); })
           .style("fill", function (d) {return d3.select(this).attr("default_color")});
 
@@ -315,60 +342,77 @@
 
     // Filtering function
     function filterGraph(){
-
-      var features = document.getElementById("keywords").value;
-
-      if (features == ""){
-        resetGraph();
+      var features = document.getElementById("keywords").value.toLowerCase();
+      if (features == "") {
+        resetGraphAndFilter();
         return;
       }
-
       features = features.split(',').map( x => x.trim());
-
       filtered_wine_nodes = wine_nodes;
-
       // Filtering successively for each queried feature
       features.forEach(feature =>
         filtered_wine_nodes = filtered_wine_nodes.filter(function(d){
            return variety_data[variety_to_index[d.name]].features.indexOf(feature) != -1;
          })
       );
-
       filtered_wine_names = filtered_wine_nodes.map(function (d){ return d.name });
-
+      node.selectAll("circle")
+        .transition()
+          .duration(FILTER_ANIMATE_TIME)
+          .attr("r", function(w){
+            if (filtered_wine_names.indexOf(w.name) != -1 ) { return radius; }
+            else { return 0 }
+          });
       d3.selectAll(".links line")
         .transition()
-        .duration(750)
-        .attr("display", function(w){
-          if (filtered_wine_names.indexOf(w.source.name) != -1 && filtered_wine_names.indexOf(w.target.name) != -1 ) { return "visible"}
-          else { return "none" }
-         });
-
-       node.selectAll("circle")
-         .transition()
-         .duration(750)
-         .attr("display", function(w){
-           if (filtered_wine_names.indexOf(w.name) != -1 ) { return "visible"}
-           else { return "none" }
+          .duration(FILTER_ANIMATE_TIME)
+          .style("stroke-opacity", function(w){
+            if (filtered_wine_names.indexOf(w.source.name) != -1 && filtered_wine_names.indexOf(w.target.name) != -1 ) { return link_opacity}
+            else { return 0 }
           });
     }
 
-    function resetGraph(){
+    // BEGIN UTILITY FUNCTIONS
 
-      document.getElementById("keywords").value = "";
-
+    function highlightSelection(selection, d) {
+      // Make circle radius of selected circle bigger
+      d3.select(selection).select("circle")
+          .attr("r", radius * 1.5);
+      d3.select(selection).select("text").moveToFront();
+      // Display the name
+      d3.select(selection).select("text")
+        .transition()
+          .duration(750)
+          .attr("visibility", "visible");
+      // Highlighting the related nodes
+      var idx = variety_to_index[d.name];
+      var rel_wines = variety_data[idx].related.map(function (d){ return d.name;});
       d3.selectAll(".links line")
         .transition()
         .duration(750)
-        .attr("display", "visible");
-
-       node.selectAll("circle")
-         .transition()
-         .duration(750)
-         .attr("display", "visible");
+        .attr("stroke", function(w){
+          if (d.name == w.source.name || d.name == w.target.name) { return highlightedNodeColor }
+          else { return default_link_color }
+         });
+      // Changing color when selecting a node
+      node.selectAll("circle")
+        .transition()
+        .duration(750)
+        .style("fill", function(w){
+          if (d.name == w.name) { return highlightedNodeColor }
+          else if (rel_wines.indexOf(w.name) == -1) { return inactiveNodeColor }
+          else { return highlightedNodeColor }
+         });
+      var reducer = (acc, curr_val) => acc + ", " + curr_val;
+      var features = variety_data[idx].features.reduce(reducer);
+      var rel_wines_string = rel_wines.length ? rel_wines.reduce(reducer) : "None";
+      description.html(
+       `<b>${d.name}</b> <br><br>\
+        <b>Similar Varietals: </b>${rel_wines_string}<br><br>\
+        <b>Top Features:</b> ${features}`);
     }
 
-    // Begin Mouse Event Callbacks
+    // BEGIN CALLBACK FUNCTIONS
     function dragstarted(d) {
       if (!d3.event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
@@ -387,77 +431,106 @@
     }
 
     function mouseover(d) {
+      if (selected != null) {
+        d3.select(this).select("text")
+          .transition()
+            .duration(750)
+            .attr("visibility", "visible");
+        return;
+      }
       // Make circle radius of selected circle bigger
-      d3.select(this).select("circle")
-          .attr("r", radius * 1.5);
-
-      // Display the name
-      d3.select(this).select("text")
-        .transition()
-          .duration(750)
-          .attr("visibility", "visible");
-
-      // Highlighting the related nodes
-      var idx = variety_to_index[d.name];
-      var rel_wines = variety_data[idx].related.map(function (d){ return d.name;});
-
-      d3.selectAll(".links line")
-        .transition()
-        .duration(750)
-        .attr("stroke", function(w){
-          if (d.name == w.source.name || d.name == w.target.name) { return highlightedNodeColor }
-          else { return default_link_color }
-         });
-
-
-      // Changing color when selecting a node
-      node.selectAll("circle")
-        .transition()
-        .duration(750)
-        .style("fill", function(w){
-          if (d.name == w.name) { return highlightedNodeColor }
-          else if (rel_wines.indexOf(w.name) == -1) { return inactiveNodeColor }
-          else { return highlightedNodeColor }
-         });
-
-
-      var reducer = (acc, curr_val) => acc + ", " + curr_val;
-      var features = variety_data[idx].features.reduce(reducer);
-      var rel_wines_string = rel_wines.length ? rel_wines.reduce(reducer) : "None";
-
-      description.html(
-       `<b>${d.name}</b> <br><br>\
-        <b>Related Wines: </b>${rel_wines_string}<br><br>\
-        <b> Features:</b> ${features}`);
-
+      highlightSelection(this, d);
     }
 
     function mouseout(d) {
-
-      d3.select(this).select("circle")
-        .attr("r", radius);
-
 
       d3.select(this).select("text")
         .transition()
           .duration(750)
           .attr("visibility", "hidden");
 
+      if (selected != null) return; // Only hide text if selection is fixated
+
+      d3.select(this).select("circle")
+        .attr("r", radius);
 
       node.selectAll("circle")
         .transition()
         .duration(750)
         .style("fill", function(w){ return d3.select(this).attr("default_color"); });
 
-    d3.selectAll(".links line")
-      .transition()
-      .duration(750)
-      .attr("stroke", default_link_color);
+      d3.selectAll(".links line")
+        .transition()
+        .duration(750)
+        .attr("stroke", default_link_color);
 
       description
-        .html("");
+        .html(default_display_text);
     }
 
+    function clicked(d) {
+      if (selected != null && d != selected) return; //Something already selected
+      (d == selected)? selected = null : selected = d; // Set selected to d if selected was null, else null
+
+      if (selected == null) { // Just changed selected to null, need to reset nodes
+        // TODO NEED TO ADD FILTERED FLAG
+
+        node.selectAll("circle")
+          .transition()
+            .duration(FILTER_ANIMATE_TIME)
+            .attr("r", radius)
+            .style("fill", function(w){ return d3.select(this).attr("default_color"); });
+
+        d3.selectAll(".links line")
+          .transition()
+            .duration(FILTER_ANIMATE_TIME)
+            .attr("stroke", default_link_color);
+
+        description.html(default_display_text);
+        return;
+      }
+      highlightSelection(this, d);
+    }
+
+    // Unselect Button Callback
+    function unselectNode(d) {
+        // TODO NEED TO ADD FILTERED FLAG
+      if (selected == null) return;
+      d3.select("#" + selected.name + "Node")
+        .attr("r", radius);
+
+      node.selectAll("circle")
+        .transition()
+          .duration(FILTER_ANIMATE_TIME)
+          .attr("r", radius)
+          .style("fill", function(w){ return d3.select(this).attr("default_color"); });
+
+      d3.selectAll(".links line")
+        .transition()
+          .duration(FILTER_ANIMATE_TIME)
+          .attr("stroke", default_link_color);
+
+      description.html(default_display_text);
+      selected = null;
+    }
+
+    function resetGraphAndFilter(d){
+      document.getElementById("keywords").value = "";
+
+      selected = null;
+
+      node.selectAll("circle")
+        .transition()
+          .duration(FILTER_ANIMATE_TIME)
+          .attr("r", radius)
+          .style("fill", function(w){ return d3.select(this).attr("default_color"); });
+
+      d3.selectAll(".links line")
+        .transition()
+          .duration(FILTER_ANIMATE_TIME)
+          .style("stroke-opacity", link_opacity)
+          .attr("stroke", default_link_color);
+    }
 
   }
 
@@ -469,11 +542,6 @@
         height = svg.attr("height"),
         padding = 40,
         radius = 10;
-
-
-
-
-
 
     //Filter based on variety
     console.log(wines[0]);
@@ -487,7 +555,6 @@
 
     console.log(xExtent);
     console.log(yExtent);
-
 
     // Setup scales
     var xScale = d3.scaleLinear().domain(xExtent)
@@ -625,7 +692,13 @@
        // <<<<<<<<<<<<<<<<<<<< NOTE: END slider work >>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
-
   }
+
+  // Snippet Credit: https://gist.github.com/trtg/3922684
+  d3.selection.prototype.moveToFront = function() {
+    return this.each(function(){
+    this.parentNode.appendChild(this);
+  })}
+
 
 </script>
