@@ -36,6 +36,14 @@
   <div class="col">
     <svg id = "varieties_svg" width = "850" height = "650"  class = "varieties-svg"> </svg>
   </div>
+
+  <div class="varietypicked">
+    <input type="text" id="minprice" class = "price-input"/>
+    <input type="text" id="maxprice" class = "price-input"/>
+    <input type="text" id="minpoints" placeholder="Enter a value > 80" class = "price-input"/>
+    <p id="error-text" visibility="hidden"> 
+  </div> 
+
   <div class="col">
     <button type="button" id="unselectButton" name="Submit">Unselect</button>
     <button type="button" id="pickButton" name="Submit">Pick a bottle</button>
@@ -44,9 +52,7 @@
 </div>
 </div>
 
-<div class="varietypicked">
 
-</div> 
 
 <svg id = "filtered_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
 <div id ="toolbar">
@@ -417,11 +423,16 @@
       var randomIndex = Math.floor(Math.random() * Math.floor(filtered.length));
       var randomBottle = filtered[randomIndex];
 
+      //TODO - display that into the div
+
       console.log(randomBottle);
     }
 
     function pickButtonClicked(){
-
+      var minprice = document.getElementById("minprice").value;
+      var maxprice = document.getElementById("maxprice").value;
+      var minpoints = document.getElementById("minpoints").value;
+      getRandomBottle(selected.name, minprice, maxprice, minpoints);
     }
 
     function resetGraphAndFilter(d){
