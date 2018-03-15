@@ -140,6 +140,9 @@
     var resetButton = d3.select("#resetButton")
       .on("click", resetGraphAndFilter);
 
+    var pickButton = d3.select("#pickButton")
+      .on("click", pickedWine);
+
     var unselectButton = d3.select("#unselectButton")
       .on("click", unselectNode);
 
