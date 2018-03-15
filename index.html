@@ -264,6 +264,8 @@
     // Used for determining the selected (by click) node
     var selected = null;
 
+    var filtered_wine_nodes = wine_nodes;
+
     var filterButton = d3.select("#filterButton")
       .on("click", filterGraph);
 
@@ -355,7 +357,7 @@
            return variety_data[variety_to_index[d.name]].features.indexOf(feature) != -1;
          })
       );
-      filtered_wine_names = filtered_wine_nodes.map(function (d){ return d.name });
+      var filtered_wine_names = filtered_wine_nodes.map(function (d){ return d.name });
       node.selectAll("circle")
         .transition()
           .duration(FILTER_ANIMATE_TIME)
@@ -473,12 +475,14 @@
       (d == selected)? selected = null : selected = d; // Set selected to d if selected was null, else null
 
       if (selected == null) { // Just changed selected to null, need to reset nodes
-        // TODO NEED TO ADD FILTERED FLAG
 
         node.selectAll("circle")
           .transition()
             .duration(FILTER_ANIMATE_TIME)
-            .attr("r", radius)
+            .attr("r", function(w){
+              if (filtered_wine_nodes.indexOf(w) > -1) return radius;
+              return 0;
+            })
             .style("fill", function(w){ return d3.select(this).attr("default_color"); });
 
         d3.selectAll(".links line")
@@ -502,7 +506,10 @@
       node.selectAll("circle")
         .transition()
           .duration(FILTER_ANIMATE_TIME)
-          .attr("r", radius)
+          .attr("r", function(w){
+            if (filtered_wine_nodes.indexOf(w) > -1) return radius;
+            return 0;
+          })
           .style("fill", function(w){ return d3.select(this).attr("default_color"); });
 
       d3.selectAll(".links line")
@@ -516,7 +523,7 @@
 
     function resetGraphAndFilter(d){
       document.getElementById("keywords").value = "";
-
+      filtered_wine_nodes = wine_nodes;
       selected = null;
 
       node.selectAll("circle")
