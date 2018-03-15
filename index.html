@@ -5,135 +5,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <style>
-
-    .jumbotron {
-      background-image: url("media/wine-border.jpg");
-      background-size: 100%;
-      background-position: 50% 27%;
-      height: 350px;
-    }
-
-    h1 {
-      padding-top: 150px;
-      padding-bottom: 10px;
-      color: white;
-      letter-spacing: 1px;
-      font-weight: lighter;
-    }
-
-    .row {
-      margin-bottom: 20px;
-    }
-
-    .container.title {
-      /*padding-bottom: 50px;*/
-      margin-left: 100px;
-    }
-
-    .title-caption {
-      color: lightgray;
-      font-weight: lighter;
-      margin-left: 5px;
-      padding-left: 15px;
-      padding-top: 3px;
-      padding-bottom: 3px;
-      border-left: 5px solid #EE6E73
-    }
-
-    .links line {
-      stroke-opacity: 0.6;
-    }
-
-    .nodes circle {
-      stroke: #fff;
-      stroke-width: 1.5px;
-    }
-
-    .description {
-      position: absolute;
-      display: inline-block;
-      width: 300px;
-      height: 600px;
-      border: 1px solid black;
-      background-color: white;
-    }
-
-    .description-inner {
-      text-align: left;
-      padding: 10px;
-    }
-
-    .card {
-      height: 650px;
-      background-color: #F0F0F0;
-    }
-
-    #varieties_description {
-      padding-bottom: 20px;
-    }
-
-    .varieties-svg {
-      /*border: 1px solid rgba(0,0,0,.125);*/
-      border-radius: 3px;
-      display: inline-block;
-      background-color: white;
-    }
-
-    #search-bar-instructions {
-      color: gray;
-      padding: 10px;
-      margin-left: 55px;
-      margin-bottom: 25px;
-
-    }
-
-    .search-bar{
-      width: 700px;
-      height: 60px;
-      border: none;
-      margin-left: 75px;
-    }
-
-    .search-bar:hover {
-      border: none;
-    }
-
-    .btn {
-      width: 150px;
-      height: 50px;
-    }
-
-    .btn-primary {
-      margin-right: 10px;
-    }
-
-    input {
-      font-size: 35px;
-    }
-
-    input:focus {
-      outline:none;
-    }
-
-    ::-webkit-input-placeholder {
-      font-size: 35px;
-      color: lightgray;
-      font-weight: lighter;
-    }
-
-    svg {
-      background-color: #FFFFFF;
-      margin-right: 10px;
-    }
-
-    body{
-      background-color: #FFFFFF;
-      font-family: 'Roboto', 'sans-serif';
-    }
-
-    </style>
+    <link rel ="stylesheet" type="text/css" href="styles.css"/>
   </head>
 
   <body>
@@ -202,15 +74,11 @@
     console.log("Data loaded!")
 
     // Make Variety Viz
-    makeVarietyViz(variety_data, variety_to_index);
-
-    // Make Plot Viz
-
-    makeWineViz(wines, "Melon");
+    makeVarietyViz(variety_data, variety_to_index, wines);
 
   }
   // Creating the Variety visualization
-  function makeVarietyViz(variety_data, variety_to_index){
+  function makeVarietyViz(variety_data, variety_to_index, wines){
 
     // Building Graph Data Structures
     var wine_nodes = variety_data.map(function (d){ return {"name": d.name, "group": d.cluster}; })
@@ -529,6 +397,20 @@
       selected = null;
     }
 
+      function makeWineViz(variety, minprice, maxprice, minpoints){
+      //console.log(wines[0]);
+      var filtered = wines.filter(function (d){ 
+        return (d.variety == variety) 
+        && (d.price >= minprice)
+        && (d.price <= maxprice)
+        && (d.points >= minpoints)});
+      
+      var randomIndex = Math.floor(Math.random() * Math.floor(filtered.length));
+      var randomBottle = filtered[randomIndex];
+
+      console.log(randomBottle);
+    }
+
     function resetGraphAndFilter(d){
       document.getElementById("keywords").value = "";
       filtered_wine_nodes = wine_nodes;
@@ -548,166 +430,6 @@
 
       description.html(default_display_text);
     }
-
-  }
-
-  function makeWineViz(wines, variety){
-
-    // Begin Building
-    var svg = d3.select("#filtered_svg"),
-        width = svg.attr("width"),
-        height = svg.attr("height"),
-        padding = 40,
-        radius = 10;
-
-    //Filter based on variety
-    console.log(wines[0]);
-    var filtered = wines.filter(function (d){ return d.variety == variety}); //its like a for loop applying the function to each object in wines
-    //var filtered_price = filtered.filter(function (d){ return d.price > 30});
-    //var filtered_rating = filtered.filter(function (d){ return d.variety == variety});
-    console.log(filtered.sort(function(a,b) { return a.price - b.price; }));
-
-    var xExtent = d3.extent(filtered, function(d) {return d.price;});
-    var yExtent = d3.extent(filtered, function(d) {return d.points;});
-
-    console.log(xExtent);
-    console.log(yExtent);
-
-    // Setup scales
-    var xScale = d3.scaleLinear().domain(xExtent)
-      .range([padding, width-padding]);
-    var yScale = d3.scaleLinear().domain(yExtent)
-      .range([height - padding, padding]);
-
-
-    // Setup Axes
-    var xAxis = d3.axisBottom(xScale);
-    svg.append('g').attr('transform', 'translate(0,' + (height - padding) + ')').call(xAxis);
-    var yAxis = d3.axisLeft(yScale);
-    svg.append('g').attr('transform', 'translate(' + padding + ', 0)').call(yAxis);
-
-
-    //Plot points
-    var node = svg.append("g")
-        .attr("class", "nodes")
-        .selectAll("circle")
-        .data(filtered)
-        .enter().append("circle")
-            .attr("class", "dot")
-            .attr("cx", function (d) {return xScale(d.price);})
-            .attr("cy", function (d) {return yScale(d.points);})
-            .attr("r", radius)
-            .attr("fill", 000000);
-            // .call(d3.drag()
-            //       .on("start", dragstarted)
-            //       .on("drag", dragged)
-            //       .on("end", dragended))
-            //       .on("mouseover", mouseover)
-            //       .on("mouseout", mouseout);
-
-
-    // draw dots
-    // svg.selectAll(".dot")
-    //     .data(filtered)
-    //   .enter().append("circle")
-    //     .attr("class", "dot")
-    //     .attr("r", 3.5)
-    //     .attr("cx", xScale(function (d) {return d.price;}))
-    //     .attr("cy", yScale(function (d) {return d.points;}))
-    //     .style("fill", 000000)
-        // .style("fill", function(d) { return color(cValue(d));})
-
-        // .on("mouseover", function(d) {
-        //     tooltip.transition()
-        //          .duration(200)
-        //          .style("opacity", .9);
-        //     tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d)
-        //     + ", " + yValue(d) + ")")
-        //          .style("left", (d3.event.pageX + 5) + "px")
-        //          .style("top", (d3.event.pageY - 28) + "px");
-        // })
-
-        // .on("mouseout", function(d) {
-        //     tooltip.transition()
-        //          .duration(500)
-        //          .style("opacity", 0);
-        // });
-
-        // <<<<<<<<<<<<<<<<<<<< NOTE: BEGIN slider work >>>>>>>>>>>>>>>>>>>>>>
-
-        var toolbar_div = d3.select("#toolbar");
-
-        var inputIdOrder = ["PriceMin", "PriceMax", "RatingMin", "RatingMax"];
-        var labelOrder = ["Price Min", "Price Max", "Rating Min", "Rating Max"];
-
-        var inputDivs = inputIdOrder.map( _ =>
-          toolbar_div.append("div")
-            .attr("class", "slider-div"));
-
-        var [priceMinDiv,priceMaxDiv,ratingMinDiv,ratingMaxDiv] = inputDivs;
-
-        var [priceMinLabel, priceMaxLabel, rateMinLabel, rateMaxLabel] =
-            inputDivs.map(( (div, idx) =>
-              div.append("p").html(labelOrder[idx])
-                 .attr("id", inputIdOrder[idx]+"Label")
-            ));
-
-        var [priceMinSlider, priceMaxSlider, rateMinSlider, rateMaxSlider] =
-            inputDivs.map( (div, idx) =>
-              div.append("input")
-                .attr("type", "range")
-                .attr("id", inputIdOrder[idx]+"Slider")
-              );
-
-        console.log(priceMaxSlider.attr("value"));
-
-        //After Sliders have been created, this populates information
-        initSliders();
-
-        function initSliders(){
-          //TODO: Fill me in!
-        }
-
-
-        // Use this function to update the label for a given slider id
-        function updateLabelFor(inputId, val) {
-          var index = inputIdOrder.indexOf(inputId);
-          d3.select("#" + inputId + "Label")
-            .html(labelOrder[index] + ": " + val);
-        }
-
-        priceMinSlider
-          .on("input", updatePriceMin);
-
-        priceMaxSlider
-          .on("input", updatePriceMax);
-
-        rateMinSlider
-          .on("input", updateRateMin);
-
-        rateMaxSlider
-          .on("input", updateRateMax);
-
-        function updatePriceMin(){
-          updateLabelFor("PriceMin", 25);
-          console.log("Hello");
-          // TODO: Fill me in!
-        }
-
-        function updatePriceMax(){
-          // TODO: Fill me in!
-        }
-
-        function updateRateMin(){
-          // TODO: Fill me in!
-        }
-
-        function updateRateMax(){
-        // TODO: Fill me in!
-        }
-
-       // <<<<<<<<<<<<<<<<<<<< NOTE: END slider work >>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
   }
 
