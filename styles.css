@@ -14,6 +14,7 @@
       color: white;
       letter-spacing: 1px;
       font-weight: lighter;
+      text-shadow: 2px 2px 16px black;
     }
 
     .row {
@@ -22,7 +23,9 @@
 
     .container.title {
       /*padding-bottom: 50px;*/
-      margin-left: 100px;
+      margin-left: 50px;
+      position: ;
+
     }
 
     .title-caption {
@@ -32,7 +35,8 @@
       padding-left: 15px;
       padding-top: 3px;
       padding-bottom: 3px;
-      border-left: 5px solid #EE6E73
+      border-left: 5px solid #EE6E73; 
+      text-shadow: 2px 2px 16px black;
     }
 
     .links line {
@@ -59,7 +63,7 @@
     }
 
     .card {
-      height: 650px;
+      height: 600px;
       background-color: #F0F0F0;
     }
 
@@ -68,7 +72,7 @@
     }
 
     .varieties-svg {
-      /*border: 1px solid rgba(0,0,0,.125);*/
+      border: 1px solid rgba(0,0,0,.125);
       border-radius: 3px;
       display: inline-block;
       background-color: white;
@@ -77,20 +81,24 @@
     #search-bar-instructions {
       color: gray;
       padding: 10px;
-      margin-left: 55px;
+      margin-left: 1px;
       margin-bottom: 25px;
 
     }
 
-    .search-bar{
-      width: 700px;
+    .search-bar {
+      width: 800px;
       height: 60px;
       border: none;
-      margin-left: 75px;
+      margin-left: 15px;
     }
 
     .search-bar:hover {
       border: none;
+    }
+
+    .buttons {
+      float: right;
     }
 
     .btn {

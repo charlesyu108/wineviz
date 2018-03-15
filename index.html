@@ -29,13 +29,15 @@
   </div>
   <div class="row" id="actual-search-bar">
     <input type="text" id="keywords" placeholder="Try 'cherry, fruity, sweet'&hellip;" class = "search-bar"/>
+    <div class="buttons">
     <button type="button" class="btn btn-primary" id="filterButton" name="Submit">Filter</button>
     <button type="button" class="btn btn-secondary" id="resetButton" name="Submit">Reset</button>
+    </div>
   </div>
   </form>
 <div class="row">
   <div class="col">
-    <svg id = "varieties_svg" width = "850" height = "650"  class = "varieties-svg"> </svg>
+    <svg id = "varieties_svg" width = "780" height = "650"  class = "varieties-svg"> </svg>
   </div>
   <div class="col">
     <button type="button" id="unselectButton" name="Submit">Unselect</button>
@@ -44,11 +46,6 @@
   </div>
 </div>
 </div>
-
-<svg id = "filtered_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
-<div id ="toolbar">
-</div>
-
 
 <script>
 
