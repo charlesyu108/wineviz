@@ -358,14 +358,22 @@
          })
       );
       var filtered_wine_names = filtered_wine_nodes.map(function (d){ return d.name });
-      node.selectAll("circle")
+
+      // If selected node gets filtered out, deselect
+      if (filtered_wine_nodes.indexOf(selected) == -1) {
+        unselectNode();
+      }
+
+      var ndtranstions = node.selectAll("circle")
         .transition()
           .duration(FILTER_ANIMATE_TIME)
           .attr("r", function(w){
-            if (filtered_wine_names.indexOf(w.name) != -1 ) { return radius; }
+            if (filtered_wine_names.indexOf(w.name) != -1 && w == selected) { return 1.5 * radius }
+            else if (filtered_wine_names.indexOf(w.name) != -1 ) { return radius; }
             else { return 0 }
           });
-      d3.selectAll(".links line")
+
+      var linktransitions = d3.selectAll(".links line")
         .transition()
           .duration(FILTER_ANIMATE_TIME)
           .style("stroke-opacity", function(w){
@@ -498,8 +506,8 @@
 
     // Unselect Button Callback
     function unselectNode(d) {
-        // TODO NEED TO ADD FILTERED FLAG
       if (selected == null) return;
+
       d3.select("#" + selected.name + "Node")
         .attr("r", radius);
 
@@ -537,6 +545,8 @@
           .duration(FILTER_ANIMATE_TIME)
           .style("stroke-opacity", link_opacity)
           .attr("stroke", default_link_color);
+
+      description.html(default_display_text);
     }
 
   }
