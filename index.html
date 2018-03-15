@@ -39,6 +39,13 @@
       background-color: #FAF6F6;
     }
 
+/*    .tooltip {
+      position: absolute;
+      width: 200px;
+      height: 28px;
+      pointer-events: none;
+    }*/
+
     </style>
   </head>
 
@@ -55,6 +62,8 @@
   <input id="filterButton" name="Submit"  type="submit" value="Filter"/>
   <input id="resetButton" name="Submit"  type="submit" value="Reset"/>
 </div>
+
+<svg id = "filtered_svg" width = "800" height = "600"  class = "varieties-svg"> </svg>
 
 <script>
 
@@ -81,15 +90,11 @@
     console.log("Data loaded!")
 
     // Make Variety Viz
-    makeVarietyViz(variety_data, variety_to_index);
-
-    // Make Plot Viz
-
-    makeWineViz(wines, "Melon");
+    makeVarietyViz(variety_data, variety_to_index, wines);
 
   }
   // Creating the Variety visualization
-  function makeVarietyViz(variety_data, variety_to_index){
+  function makeVarietyViz(variety_data, variety_to_index, wines){
 
     // Building Graph Data Structures
     var wine_nodes = variety_data.map(function (d){ return {"name": d.name, "group": d.cluster}; })
@@ -336,100 +341,31 @@
         .html("");
     }
 
+      function makeWineViz(variety, minprice, maxprice, minpoints){
+      //console.log(wines[0]);
+      var filtered = wines.filter(function (d){ 
+        return (d.variety == variety) 
+        && (d.price >= minprice)
+        && (d.price <= maxprice)
+        && (d.points >= minpoints)});
+      
+      var randomIndex = Math.floor(Math.random() * Math.floor(filtered.length));
+      var randomBottle = filtered[randomIndex];
 
-  }
+      console.log(randomBottle);
 
-  function makeWineViz(wines, variety){
-
-    // Begin Building
-    var svg = d3.select("#filtered_svg"),
-        width = svg.attr("width"),
-        height = svg.attr("height"),
-        padding = 40,
-        radius = 10;
-
-
-
-
-
-
-    //Filter based on variety
-    console.log(wines[0]);
-    var filtered = wines.filter(function (d){ return d.variety == variety}); //its like a for loop applying the function to each object in wines
-    //var filtered_price = filtered.filter(function (d){ return d.price > 30});
-    //var filtered_rating = filtered.filter(function (d){ return d.variety == variety});
-    console.log(filtered.sort(function(a,b) { return a.price - b.price; }));
-
-    var xExtent = d3.extent(filtered, function(d) {return d.price;});
-    var yExtent = d3.extent(filtered, function(d) {return d.points;});
-
-    console.log(xExtent);
-    console.log(yExtent);
-
-
-    // Setup scales
-    var xScale = d3.scaleLinear().domain(xExtent)
-      .range([padding, width-padding]);
-    var yScale = d3.scaleLinear().domain(yExtent)
-      .range([height - padding, padding]);
-
-
-    // Setup Axes
-    var xAxis = d3.axisBottom(xScale);
-    svg.append('g').attr('transform', 'translate(0,' + (height - padding) + ')').call(xAxis);
-    var yAxis = d3.axisLeft(yScale);
-    svg.append('g').attr('transform', 'translate(' + padding + ', 0)').call(yAxis);
-
-
-    //Plot points
-    var node = svg.append("g")
-        .attr("class", "nodes")
-        .selectAll("circle")
-        .data(filtered)
-        .enter().append("circle")
-            .attr("class", "dot")
-            .attr("cx", function (d) {return xScale(d.price);})
-            .attr("cy", function (d) {return yScale(d.points);})
-            .attr("r", radius)
-            .attr("fill", 000000); 
-            // .call(d3.drag()
-            //       .on("start", dragstarted)
-            //       .on("drag", dragged)
-            //       .on("end", dragended))
-            //       .on("mouseover", mouseover)
-            //       .on("mouseout", mouseout);
-
-
-    // draw dots
-    // svg.selectAll(".dot")
-    //     .data(filtered)
-    //   .enter().append("circle")
-    //     .attr("class", "dot")
-    //     .attr("r", 3.5)
-    //     .attr("cx", xScale(function (d) {return d.price;}))
-    //     .attr("cy", yScale(function (d) {return d.points;}))
-    //     .style("fill", 000000)
-        // .style("fill", function(d) { return color(cValue(d));})
-
-        // .on("mouseover", function(d) {
-        //     tooltip.transition()
-        //          .duration(200)
-        //          .style("opacity", .9);
-        //     tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d)
-        //     + ", " + yValue(d) + ")")
-        //          .style("left", (d3.event.pageX + 5) + "px")
-        //          .style("top", (d3.event.pageY - 28) + "px");
-        // })
-
-        // .on("mouseout", function(d) {
-        //     tooltip.transition()
-        //          .duration(500)
-        //          .style("opacity", 0);
-        // });
-
-
+    }
 
 
   }
 
 </script>
+
+
+
+
+
+
+
+
+
