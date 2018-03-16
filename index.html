@@ -52,6 +52,7 @@
     </div>
 </div>
 <div id="bottle-description"> </div>
+<div> Built by Jon Lee, Michelle Yang,and Charles Yu for INFO 4310. <a href ="https://github.com/charlesyu108/wineviz">Learn more.</a></div>
 
 </div>
 </div>
@@ -117,9 +118,9 @@
      `How do wine tasters describe different varietals?
       <b><br><br>Hover over a varietal node to see!</b><br><br>
       Each node in this graph represents a different varietal of wine, and
-      nodes are connected to each other if they share a strong similarity to one
-      another. We determine similarity in terms of the feature words used to
-      describe any two wines.<br><br>
+      nodes are connected to each other if they share a strong textual similarity to one
+      another in how they are described by wine reviewers. We determine similarity in terms
+      of the feature words used to describe any two wines.<br><br>
 
       <b>Click on a node to explore bottles of wine for your chosen varietal. </b>
       `
@@ -478,11 +479,11 @@
           .attr("visibility", "visible");
       }
 
-      var bottle_text = 
+      var bottle_text =
       `
       <b>${bottle.variety}</b> -- <em>${bottle.winery}, ${bottle.province}, ${bottle.country}</em><br>
       <b>Description:</b> ${bottle.description}<br>
-      <b>Points:</b> ${bottle.points}, <b>Price:</b> $${bottle.price} <br>
+      <b>Points:</b> ${bottle.points} / <b>Price:</b> $${bottle.price} <br><br><br>
       `
 
       bottle_div.html(bottle_text);
