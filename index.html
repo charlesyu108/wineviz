@@ -34,8 +34,10 @@
     </div>
   </div>
 
+
   <div class="row" id="more-filters">
     <div class="varietypicked">
+
     <input type="text" id="minprice" class = "price-input"/>
     <input type="text" id="maxprice" class = "price-input"/>
     <input type="text" id="minpoints" placeholder="Enter a value > 80" class = "price-input"/>
@@ -142,6 +144,19 @@
 
     // Used for determining the selected (by click) node
     var selected = null;
+
+    function select(wine){
+      selected = wine;
+      d3.selectAll(".pick")
+        .style("visibility", "visible")
+
+    }
+
+    function unselect(){
+      selected = null;
+      d3.selectAll(".pick")
+        .style("visibility", "hidden")
+    }
 
     var filtered_wine_nodes = wine_nodes;
 
@@ -361,11 +376,10 @@
     }
 
     function clicked(d) {
-      if (selected != null && d != selected) return; //Something already selected
-      (d == selected)? selected = null : selected = d; // Set selected to d if selected was null, else null
+      if (selected != null && d != selected) return; //Something is  already selected
 
-      if (selected == null) { // Just changed selected to null, need to reset nodes
-
+      if (selected == d) {
+        unselect();
         node.selectAll("circle")
           .transition()
             .duration(FILTER_ANIMATE_TIME)
@@ -381,9 +395,11 @@
             .attr("stroke", default_link_color);
 
         description.html(default_display_text);
-        return;
       }
-      highlightSelection(this, d);
+      else {
+        select(d);
+        highlightSelection(this, d);
+      }
     }
 
     // Unselect Button Callback
@@ -408,7 +424,7 @@
           .attr("stroke", default_link_color);
 
       description.html(default_display_text);
-      selected = null;
+      unselect();
     }
 
     function getRandomBottle(variety, minprice, maxprice, minpoints){
@@ -464,7 +480,7 @@
     function resetGraphAndFilter(d){
       document.getElementById("keywords").value = "";
       filtered_wine_nodes = wine_nodes;
-      selected = null;
+      unselect();
 
       node.selectAll("circle")
         .transition()
