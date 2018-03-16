@@ -30,10 +30,13 @@
     <button type="button" class="btn btn-secondary" id="resetButton" name="Submit">Reset</button>
     </div>
   </div>
-
+<div class ="container-fluid">
 <div class="row">
-  <svg id = "varieties_svg" width = "800" height = "650"  class = "varieties-svg"> </svg>
-  <div id = "varieties_description" class = "card"> </div>
+  <div class ="col-xx-6">
+    <svg id = "varieties_svg" width = "600" height = "600"  class = "varieties-svg"> </svg>
+  </div>
+  <div id = "varieties_description" class="col-xx-offset-6"> </div>
+</div>
 </div>
 
  <div class="row" id="more-filters">
@@ -43,13 +46,12 @@
     <input type="text" id="minpoints" placeholder="Min Rating (>= 80)" class = "price-input extra-inputs"/>
   </div>
 
-    <p id="error-text" visibility="hidden">
-
     <div class="pick-buttons">
       <button type="button" class="btn btn-secondary extra-inputs" id="unselectButton" name="Submit">Unselect</button>
       <button type="button" class="btn btn-primary extra-inputs" id="pickButton" name="Submit">Pick a bottle</button>
     </div>
-  </div>
+</div>
+<div id="bottle-description"> </div>
 
 </div>
 </div>
@@ -130,10 +132,12 @@
 
     // Description box -- Making an inner div to avoid weird sizing
     var description = d3.select("#varieties_description")
-      .append("div")
-      .attr("class", "description-inner");
+    .append("div")
+    .attr("class", "description-inner");
 
     description.html(default_display_text);
+
+    var bottle_div = d3.select("#bottle-description");
 
     // Used for determining the selected (by click) node
     var selected = null;
@@ -142,6 +146,8 @@
       selected = wine;
       d3.selectAll(".extra-inputs")
         .style("visibility", "visible")
+      bottle_div
+      .text("");
 
     }
 
@@ -149,6 +155,9 @@
       selected = null;
       d3.selectAll(".extra-inputs")
         .style("visibility", "hidden")
+      bottle_div
+      .text("")
+      .attr("visibility", "hidden");
     }
 
     var filtered_wine_nodes = wine_nodes;
@@ -452,26 +461,31 @@
       // Value Validation
     if (Number(minprice) >= 0 && Number(maxprice) >=0 && Number(maxprice) >= 0
         && Number(maxprice) >= Number(minprice) && Number(minpoints) >= 80 && Number(minpoints) <=100 ) {
-          d3.select("#error-text")
+          bottle_div.html("")
           .attr("visibility", "hidden");
         }
       else{
         // Make the error string visible here.s
-        d3.select("#error-text")
-        .html("Whoops! Invalid input.")
-        .attr("visibility", "visible");
+       bottle_div.html("Whoops! Invalid input.")
+          .attr("visibility", "visible");
         return;
       }
 
       var bottle = getRandomBottle(selected.name, minprice, maxprice, minpoints);
 
       if (bottle == null){
-        d3.select("#error-text")
-        .html("No bottles found for search range.")
-        .attr("visibility", "visible");
+          bottle_div.html("No  bottles found for search range")
+          .attr("visibility", "visible");
       }
 
-      d3.select("#bottle-description").html("test")
+      var bottle_text = 
+      `
+      <b>${bottle.variety}</b> -- <em>${bottle.winery}, ${bottle.province}, ${bottle.country}</em><br>
+      <b>Description:</b> ${bottle.description}<br>
+      <b>Points:</b> ${bottle.points}, <b>Price:</b> $${bottle.price} <br>
+      `
+
+      bottle_div.html(bottle_text);
 
       //Set display to show bottle info
     }
