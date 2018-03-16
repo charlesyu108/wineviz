@@ -63,7 +63,8 @@
     }
 
     .card {
-      height: 600px;
+      /**min-height: 200px;
+      height: 600px;**/
       background-color: #F0F0F0;
     }
 
@@ -78,17 +79,9 @@
       background-color: white;
     }
 
-    #search-bar-instructions {
-      color: gray;
-      padding: 10px;
-      margin-left: 1px;
-      margin-bottom: 25px;
-
-    }
-
     .search-bar {
       width: 800px;
-      height: 50px;
+      height: 40px;
       /**border: none;**/
       margin-right: 15px;
     }
@@ -99,7 +92,7 @@
 
     .btn {
       width: 150px;
-      height: 50px;
+      height: 40px;
     }
 
     .btn-primary {
@@ -112,11 +105,13 @@
       margin-left: none;
     }
 
-    #keywords {
-      font-size: 30px;
+    .pick-buttons {
+
     }
 
-
+    #keywords {
+      font-size: 18px;
+    }
 
     input:focus {
       outline:none;
@@ -127,16 +122,22 @@
       font-weight: lighter;
     }
 
-    .col-1 .col-2 .col-3 {
+    /**.col-1 .col-2 .col-3 {
       margin-bottom: 10px;
+    }**/
+
+    .more-filters {
+      margin-left: 10px;
+      display: inline;
     }
 
-    .varietypicked {
-      margin-left: 10px;
+    #minprice #maxprice #minpoints {
+      margin-right: 10px;
     }
 
     .price-input {
-      width: 260px;
+      width: 30%;
+      height: 40px;
     }
 
     .extra-inputs{

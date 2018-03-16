@@ -23,41 +23,34 @@
 </html>
 
 <div class="container">
-  <div class="row" id="search-bar-instructions">
-    Filter by features (separate queries with commas):
-  </div>
   <div class="row" id="keyword-search-bar">
-    <input type="text" id="keywords" placeholder="Try typing 'cherry, fruity, sweet'&hellip;" class = "search-bar"/>
+    <input type="text" id="keywords" placeholder="Filter by features. Try typing 'cherry, fruity, sweet'&hellip;" class = "search-bar"/>
     <div class="buttons">
     <button type="button" class="btn btn-primary" id="filterButton" name="Submit">Filter</button>
     <button type="button" class="btn btn-secondary" id="resetButton" name="Submit">Reset</button>
     </div>
   </div>
 
+<div class="row">
+  <svg id = "varieties_svg" width = "800" height = "650"  class = "varieties-svg"> </svg>
+  <div id = "varieties_description" class = "card"> </div>
+</div>
 
-  <div class="row" id="more-filters">
-    <div class="varietypicked">
-
+ <div class="row" id="more-filters">
+ <div class="pick-filterbars">
     <input type="text" id="minprice" placeholder="Min Price" class = "price-input extra-inputs"/>
     <input type="text" id="maxprice" placeholder="Max Price" class = "price-input extra-inputs"/>
     <input type="text" id="minpoints" placeholder="Min Rating (>= 80)" class = "price-input extra-inputs"/>
-    <p id="error-text" visibility="hidden">
-    </div>
   </div>
-  </form>
 
-<div class="row">
-  <div class="col">
-    <svg id = "varieties_svg" width = "780" height = "650"  class = "varieties-svg"> </svg>
-  </div>
-    <div class="col">
-    <div class="row">
+    <p id="error-text" visibility="hidden">
+
+    <div class="pick-buttons">
       <button type="button" class="btn btn-secondary extra-inputs" id="unselectButton" name="Submit">Unselect</button>
       <button type="button" class="btn btn-primary extra-inputs" id="pickButton" name="Submit">Pick a bottle</button>
     </div>
-    <div id = "varieties_description" class = "card"> </div>
   </div>
-</div>
+
 </div>
 </div>
 
@@ -133,7 +126,7 @@
     var svg = d3.select("#varieties_svg"),
         width = svg.attr("width"),
         height = svg.attr("height")
-        radius = 12;
+        radius = 10;
 
     // Description box -- Making an inner div to avoid weird sizing
     var description = d3.select("#varieties_description")
