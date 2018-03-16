@@ -35,7 +35,7 @@
       padding-left: 15px;
       padding-top: 3px;
       padding-bottom: 3px;
-      border-left: 5px solid #EE6E73; 
+      border-left: 5px solid #EE6E73;
       text-shadow: 2px 2px 16px black;
     }
 
@@ -135,16 +135,12 @@
       margin-left: 10px;
     }
 
-    #minprice {
+    .price-input {
       width: 260px;
     }
 
-    #maxprice {
-      width: 260px;
-    }
-
-    #minpoints {
-      width: 260px;
+    .extra-inputs{
+      visibility: hidden;
     }
 
     svg {
@@ -156,4 +152,3 @@
       background-color: #FFFFFF;
       font-family: 'Roboto', 'sans-serif';
     }
-

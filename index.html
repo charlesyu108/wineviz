@@ -38,9 +38,9 @@
   <div class="row" id="more-filters">
     <div class="varietypicked">
 
-    <input type="text" id="minprice" class = "price-input"/>
-    <input type="text" id="maxprice" class = "price-input"/>
-    <input type="text" id="minpoints" placeholder="Enter a value > 80" class = "price-input"/>
+    <input type="text" id="minprice" placeholder="Min Price" class = "price-input extra-inputs"/>
+    <input type="text" id="maxprice" placeholder="Max Price" class = "price-input extra-inputs"/>
+    <input type="text" id="minpoints" placeholder="Min Rating (>= 80)" class = "price-input extra-inputs"/>
     <p id="error-text" visibility="hidden">
     </div>
   </div>
@@ -52,8 +52,8 @@
   </div>
     <div class="col">
     <div class="row">
-      <button type="button" class="btn btn-secondary" id="unselectButton" name="Submit">Unselect</button>
-      <button type="button" class="btn btn-primary" id="pickButton" name="Submit">Pick a bottle</button>
+      <button type="button" class="btn btn-secondary extra-inputs" id="unselectButton" name="Submit">Unselect</button>
+      <button type="button" class="btn btn-primary extra-inputs" id="pickButton" name="Submit">Pick a bottle</button>
     </div>
     <div id = "varieties_description" class = "card"> </div>
   </div>
@@ -147,14 +147,14 @@
 
     function select(wine){
       selected = wine;
-      d3.selectAll(".pick")
+      d3.selectAll(".extra-inputs")
         .style("visibility", "visible")
 
     }
 
     function unselect(){
       selected = null;
-      d3.selectAll(".pick")
+      d3.selectAll(".extra-inputs")
         .style("visibility", "hidden")
     }
 
@@ -428,7 +428,7 @@
     }
 
     function getRandomBottle(variety, minprice, maxprice, minpoints){
-      //console.log(wines[0]);
+
       var filtered = wines.filter(function (d){
         return (d.variety == variety)
         && (d.price >= minprice)
@@ -451,8 +451,13 @@
       var maxprice = document.getElementById("maxprice").value;
       var minpoints = document.getElementById("minpoints").value;
 
+      if (!minprice) minprice = 0;
+      if (!maxprice) maxprice = Number.MAX_VALUE;
+      if (!minpoints) minpoints = 80;
+
+
       // Value Validation
-      if (Number(minprice) >= 0 && Number(maxprice) >=0 && Number(maxprice) >= 0
+    if (Number(minprice) >= 0 && Number(maxprice) >=0 && Number(maxprice) >= 0
         && Number(maxprice) >= Number(minprice) && Number(minpoints) >= 80 && Number(minpoints) <=100 ) {
           d3.select("#error-text")
           .attr("visibility", "hidden");
@@ -466,6 +471,7 @@
       }
 
       var bottle = getRandomBottle(selected.name, minprice, maxprice, minpoints);
+
       if (bottle == null){
         d3.select("#error-text")
         .html("No bottles found for search range.")
