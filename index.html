@@ -26,29 +26,33 @@
   <div class="row" id="search-bar-instructions">
     Filter by features (separate queries with commas):
   </div>
-  <div class="row" id="actual-search-bar">
-    <input type="text" id="keywords" placeholder="Try 'cherry, fruity, sweet'&hellip;" class = "search-bar"/>
+  <div class="row" id="keyword-search-bar">
+    <input type="text" id="keywords" placeholder="Try typing 'cherry, fruity, sweet'&hellip;" class = "search-bar"/>
     <div class="buttons">
     <button type="button" class="btn btn-primary" id="filterButton" name="Submit">Filter</button>
     <button type="button" class="btn btn-secondary" id="resetButton" name="Submit">Reset</button>
     </div>
   </div>
-  </form>
-<div class="row">
-  <div class="col">
-    <svg id = "varieties_svg" width = "780" height = "650"  class = "varieties-svg"> </svg>
-  </div>
 
-  <div class="varietypicked">
+  <div class="row" id="more-filters">
+    <div class="varietypicked">
     <input type="text" id="minprice" class = "price-input"/>
     <input type="text" id="maxprice" class = "price-input"/>
     <input type="text" id="minpoints" placeholder="Enter a value > 80" class = "price-input"/>
     <p id="error-text" visibility="hidden">
+    </div>
   </div>
+  </form>
 
+<div class="row">
   <div class="col">
-    <button type="button" id="unselectButton" name="Submit">Unselect</button>
-    <button type="button" id="pickButton" name="Submit">Pick a bottle</button>
+    <svg id = "varieties_svg" width = "780" height = "650"  class = "varieties-svg"> </svg>
+  </div>
+    <div class="col">
+    <div class="row">
+      <button type="button" class="btn btn-secondary" id="unselectButton" name="Submit">Unselect</button>
+      <button type="button" class="btn btn-primary" id="pickButton" name="Submit">Pick a bottle</button>
+    </div>
     <div id = "varieties_description" class = "card"> </div>
   </div>
 </div>
@@ -127,7 +131,7 @@
     var svg = d3.select("#varieties_svg"),
         width = svg.attr("width"),
         height = svg.attr("height")
-        radius = 15;
+        radius = 12;
 
     // Description box -- Making an inner div to avoid weird sizing
     var description = d3.select("#varieties_description")
